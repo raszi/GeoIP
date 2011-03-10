@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="GeoIP" default="dist" basedir=".">
+
+	<property file="build.properties" />
+
+	<description>
+
+Usage:
+
+ ant dist
+	Creates jar(s) into ${dist.default.dir}.
+
+ ant -Ddist.sir=/path/to/dir
+	Creates jar(s) into specific folder
+
+	</description>
+
+	<!-- Target: clean -->
+	<target name="clean" description="Cleans build ('${build.dir}') and default dist ('${dist.dir}') directories. '-Ddist.dir' argument is ignored in this task.">
+		<delete dir="${test-output.dir}" />
+		<delete dir="${build.dir}" />
+		<delete includeEmptyDirs="true" quiet="true">
+			<fileset dir="${dist.dir}" includes="**/*"/>
+        </delete>
+	</target>
+
+	<target name="binary" description="Compiles all source files into build/classes">
+		<mkdir dir="${build.dir}/classes" />
+
+		<copy todir="${build.dir}/sources/" filtering="true">
+			<fileset dir="${src.dir}" defaultexcludes="true"/>
+		</copy>
+
+		<javac destdir="${build.dir}/classes/" srcdir="${build.dir}/sources/" source="1.5" target="1.5" debug="true" optimize="true" encoding="UTF-8" includeantruntime="false" />
+
+		<jar destfile="${dist.dir}/${dist.name}-${dist.version}.jar">
+			<!-- classes -->
+			<fileset dir="${build.dir}/classes" />
+		</jar>
+	</target>
+
+	<target name="javadoc">
+		<mkdir dir="${build.dir}/javadoc" />
+
+		<javadoc destdir="${build.dir}/javadoc/" private="yes" encoding="UTF-8" charset="UTF-8">
+			<classpath>
+				<pathelement location="${build.dir}/classes" />
+			</classpath>
+			<sourcefiles>
+				<fileset dir="${src.dir}" />
+			</sourcefiles>
+		</javadoc>
+
+		<jar destfile="${dist.dir}/${dist.name}-${dist.version}-javadoc.jar">
+			<fileset dir="${build.dir}/javadoc/" />
+		</jar>
+	</target>
+
+	<target name="sources">
+		<jar destfile="${dist.dir}/${dist.name}-${dist.version}-sources.jar">
+			<fileset dir="${src.dir}" />
+		</jar>
+	</target>
+
+	<target name="dist" description="Creates a jar with path '${dist.dir}/${dist.name}.jar'.">
+		<mkdir dir="${dist.dir}" />
+
+		<antcall target="binary" />
+		<antcall target="javadoc"/>
+		<antcall target="sources"/>
+	</target>
+
+</project>
